@@ -1,10 +1,10 @@
-# CPF Inspector
+# CPF Inspector 🔍
 
 Este é um script Python simples para validar CPFs em arquivos CSV. Ele oferece a funcionalidade de validar CPFs em um único arquivo CSV ou em vários arquivos CSV em um diretório e pode filtrar a saída para exibir apenas CPFs válidos.
 
 ## Requisitos
 
-- Python 3.x
+- Python 3.x 🐍
 
 ## Como usar
 
@@ -48,4 +48,4 @@ Sinta-se à vontade para contribuir com melhorias, sugestões ou relatar problem
 
 ## Licença
 
-Este projeto está licenciado sob a Licença MIT - consulte o arquivo LICENSE para obter detalhes.
+Este projeto está licenciado sob a Licença MIT - consulte o arquivo LICENSE para obter detalhes. 📝
