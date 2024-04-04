@@ -42,6 +42,12 @@ python cpf_inspector.py arquivo.csv -t
 python cpf_inspector.py -d diretorio_com_csvs
 ```
 
+- Para ver o manual da ferramenta:
+
+```bash
+python cpf_inspector.py -h
+```
+
 ## Contribuindo
 
 Sinta-se à vontade para contribuir com melhorias, sugestões ou relatar problemas. Basta abrir uma issue ou enviar um pull request.
