@@ -1,23 +1,29 @@
 import argparse
 import csv
 import os
+import colorama
+
+colorama.init()
 
 def banner():
-    print("  __________  ______   ____                           __             ")
-    print("  / ____/ __ \/ ____/  /  _/___  _________  ___  _____/ /_____  _____")
-    print(" / /   / /_/ / /_      / // __ \/ ___/ __ \/ _ \/ ___/ __/ __ \/ ___/")
-    print("/ /___/ ____/ __/    _/ // / / (__  ) /_/ /  __/ /__/ /_/ /_/ / /    ")
-    print("\____/_/   /_/      /___/_/ /_/____/ .___/\___/\___/\__/\____/_/     ")
-    print("                                  /_/ by:richardbrandao(git) ver: 1.1")
-    print("")
+    print(colorama.Fore.CYAN +         r"   __________  ______   ____                           __            ")
+    print(colorama.Fore.CYAN +         r"  / ____/ __ \/ ____/  /  _/___  _________  ___  _____/ /_____  _____")
+    print(colorama.Fore.LIGHTBLUE_EX + r" / /   / /_/ / /_      / // __ \/ ___/ __ \/ _ \/ ___/ __/ __ \/ ___/")
+    print(colorama.Fore.LIGHTBLUE_EX + r"/ /___/ ____/ __/    _/ // / / (__  ) /_/ /  __/ /__/ /_/ /_/ / /    ")
+    print(colorama.Fore.BLUE +         r"\____/_/   /_/      /___/_/ /_/____/ .___/\___/\___/\__/\____/_/     ")
+    print(colorama.Fore.BLUE +         r"                                  /_/" + colorama.Fore.MAGENTA + f"  by:richardbrandao(git) {versao_atual}")
+    print(colorama.Style.RESET_ALL)
+
+versao_atual = "v1.0.0"
+repo_zip_url = "https://github.com/richardbrandao/cpf-inspector/archive/refs/heads/main.zip"
+repo_folder_name = "cpf-inspector"
 
 def calcular_primeiro_digito_verificador(cpf):
     cpf_numerico = "".join(filter(str.isdigit, cpf))  # Remove caracteres não numéricos do CPF
 
     pesos = [10, 9, 8, 7, 6, 5, 4, 3, 2]
 
-    # Faz a soma ponderada dos 9 primeiros dígitos
-    soma = sum(int(cpf_numerico[i]) * pesos[i] for i in range(9))
+    soma = sum(int(cpf_numerico[i]) * pesos[i] for i in range(9)) # Faz a soma ponderada dos 9 primeiros dígitos
 
     resto = soma % 11
 
@@ -45,74 +51,90 @@ def validar_cpf(cpf):
 
     return True
 
-def formatar_cpf(cpf):  # Função para formatar um CPF no seguinte padrão >> XXX.XXX.XXX-XX
+def formatar_cpf(cpf):  # Função para formatar um CPF no seguinte padrão >> XYZ.XYZ.XYZ-YZ
     cpf_numerico = "".join(filter(str.isdigit, cpf))  # Remove caracteres não numéricos do CPF
 
     # Adiciona a formatação se o CPF tiver 11 dígitos
     if len(cpf_numerico) == 11:
         return f"{cpf_numerico[:3]}.{cpf_numerico[3:6]}.{cpf_numerico[6:9]}-{cpf_numerico[9:]}"
-    else:
-        return "000.000.000-00"  # Retorna CPF formatado padrão se não tiver 11 dígitos
 
 def processar_arquivo(filename, output_filename, show_valid_only, writer):
-    # Função para processar um arquivo de CPFs
     cpf_valido_encontrado = False  # Variável para verificar se algum CPF válido foi encontrado
+    total_cpfs = 0
+    cpfs_validos = 0
+    cpfs_invalidos = 0
 
     try:
         with open(filename, newline='') as file:
             if filename.endswith('.csv') or filename.endswith('.txt'):  # Verifica se o arquivo é CSV ou TXT
                 reader = csv.reader(file)
+
+                print(" Nº" + " " * 8 + "CPF" + " " * 26 + "STATUS") # Monta o cabeçalho
+                print("-" * 46)
+
                 for row in reader:
                     cpf = row[0]  # Extrai o CPF da linha
-
+                    total_cpfs += 1
                     if validar_cpf(cpf):  # Verifica se o CPF é válido
+                        cpfs_validos += 1
                         cpf_valido_encontrado = True
                         cpf_formatado = formatar_cpf(cpf)  # Formata o CPF
-                        print(f"{cpf_formatado} - [VÁLIDO]")  # Exibe o CPF formatado como válido
+                        print(f"[{total_cpfs}]".ljust(5) + f" {(cpf_formatado).ljust(35)}" + "[" + colorama.Fore.LIGHTGREEN_EX + "✓" + colorama.Style.RESET_ALL + "]")  # Exibe o CPF formatado como válido
                         if writer:
-                            writer.writerow([cpf_formatado, 'VÁLIDO'])  # Escreve o CPF formatado como válido no arquivo de saída
+                            writer.writerow([cpf_formatado, 'VALIDO'])  # Escreve o CPF formatado como válido no arquivo de saída
                         elif output_filename:
                             print("[!] Erro: Não é possível escrever em um arquivo de saída.")
                     elif not show_valid_only:
-                        print(f"{cpf} - [INVÁLIDO]")  # Exibe o CPF como inválido
+                        cpfs_invalidos += 1
+                        print(f"[{total_cpfs}]".ljust(5) + f" {(cpf).ljust(35)}" + "[" + colorama.Fore.RED + "X" + colorama.Style.RESET_ALL + "]")  # Exibe o CPF como inválido
                         if writer:
-                            writer.writerow([cpf, 'INVÁLIDO'])  # Escreve o CPF como inválido no arquivo de saída
+                            writer.writerow([cpf, 'INVALIDO'])  # Escreve o CPF como inválido no arquivo de saída
                         elif output_filename:
                             print("[!] Erro: Não é possível escrever em um arquivo de saída.")
+
+                # Exibir estatísticas ao final do processamento
+                print("-" * 46)
+                print("\nEstatísticas de Validação:")
+                print("Total de CPFs:".ljust(15) + f"{(total_cpfs)}")
+                print("CPF válidos:".ljust(15) + f"{cpfs_validos}")
+                print("CPF inválidos:".ljust(15) + f"{cpfs_invalidos}")
+
             else:
                 print(f"[!] Arquivo {filename} não é suportado. Apenas arquivos .csv e .txt são aceitos.")
                 return
 
             if not cpf_valido_encontrado and show_valid_only:
-                print("[!] Não foram encontrados CPFs válidos no arquivo informado.")  # Exibe uma mensagem se nenhum CPF válido for encontrado
+                print("[!] Não foram encontrados CPFs válidos no arquivo informado.")
 
     except FileNotFoundError:
-        print(f'[!] O arquivo "{filename}" não foi encontrado.')  # Exibe uma mensagem se o arquivo não for encontrado
-        print('[!] Certifique-se de que o arquivo esteja no mesmo diretório onde você está executando o script Python.')
-
-    except FileNotFoundError:
-        print(f'[!] O arquivo "{filename}" não foi encontrado.')  # Exibe uma mensagem se o arquivo não for encontrado
-        print('[!] Certifique-se de que o arquivo esteja no mesmo diretório onde você está executando o script Python.')
+        print(f'[!] O arquivo "{filename}" não foi encontrado.')
+        print('[!] Certifique-se de que o caminho do arquivo esteja correto.')
 
 def processar_diretorio(directory, output_filename, show_valid_only):
-    if output_filename:
-        with open(output_filename, 'w', newline='') as output_file:
-            writer = csv.writer(output_file)  # Cria um escritor CSV
-            for filename in os.listdir(directory):
-                if filename.endswith(".csv") or filename.endswith(".txt"):  # Verifica se o arquivo é CSV ou TXT
-                    print(f"Processando arquivo: {filename}")
-                    processar_arquivo(os.path.join(directory, filename), output_filename, show_valid_only, writer)
-                    print("")
-    else:
-        for filename in os.listdir(directory):
-            if filename.endswith(".csv") or filename.endswith(".txt"):  # Verifica se o arquivo é CSV ou TXT
-                print(f"Processando arquivo: {filename}")
-                processar_arquivo(os.path.join(directory, filename), output_filename, show_valid_only, None)
-                print("")
+    try:
+        if output_filename:
+            with open(output_filename, 'w', newline='') as output_file:
+                writer = csv.writer(output_file)  # Cria um escritor CSV
+                for filename in os.listdir(directory):
+                    if filename.endswith(".csv") or filename.endswith(".txt"):  # Verifica se o arquivo é CSV ou TXT
+                        print(f"Arquivo: {filename}\n")
+                        processar_arquivo(os.path.join(directory, filename), output_filename, show_valid_only, writer)
+                        print("")
+        else:
+                for filename in os.listdir(directory):
+                    if filename.endswith(".csv") or filename.endswith(".txt"):  # Verifica se o arquivo é CSV ou TXT
+                        print(f"Arquivo: {filename}\n")
+                        processar_arquivo(os.path.join(directory, filename), output_filename, show_valid_only, None)
+                        print("")
+    
+    except FileNotFoundError:
+        print(f'[!] O diretório "{directory}" não foi encontrado.')
+        print('[!] Verifique se o caminho para o diretório está correto.')
 
 def main(filename, output_filename, show_valid_only, directory):
     if directory:
         processar_diretorio(directory, output_filename, show_valid_only)  # Processa o diretório se fornecido
+        print()
     elif filename:
         if output_filename:
             with open(output_filename, 'w', newline='') as output_file:
@@ -120,8 +142,10 @@ def main(filename, output_filename, show_valid_only, directory):
                 processar_arquivo(filename, output_filename, show_valid_only, writer)  # Processa o arquivo se fornecido
         else:
             processar_arquivo(filename, output_filename, show_valid_only, None)  # Processa o arquivo se fornecido
+        print()
     else:
-        print("Você deve fornecer um arquivo CSV ou TXT ou um diretório contendo arquivos CSV e/ou TXT para validar.")  # Exibe uma mensagem se nenhum arquivo for fornecido
+        print("Você deve fornecer um arquivo CSV ou TXT ou um diretório contendo arquivos CSV e/ou TXT para validar.")
+        print("Para mais informações, digite: " + colorama.Fore.LIGHTYELLOW_EX + "python cpf_inspector.py --help\n")
 
 if __name__ == "__main__":
     banner()

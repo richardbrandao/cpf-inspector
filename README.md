@@ -1,20 +1,32 @@
 # CPF Inspector 🔍
 
-Este é um script Python simples para validar CPFs em arquivos CSV ou TXT. Ele oferece a funcionalidade de validar CPFs em um único arquivo ou em vários arquivos em um diretório e pode filtrar a saída para exibir apenas CPFs válidos.
+O CPF Inspector é uma ferramenta de linha de comando para validar CPFs (*Cadastro de Pessoas Físicas*) em arquivos CSV ou TXT. Este script oferece a capacidade de verificar a validade de CPFs em um único arquivo ou em vários arquivos em um diretório, tendo também a capacidade de filtrar a saída para exibir apenas CPFs válidos e exibindo estatísticas de validação e permitindo a saída dos resultados em um arquivo.
 
 ## Requisitos
 
 - Python 3.x 🐍
 
+## Dependências
+
+Antes de executar o CPF Inspector, certifique-se de ter instalado todas as dependências listadas no arquivo requirements.txt.
+
+Para instalar as dependências, execute o seguinte comando no terminal:
+
+```bash
+pip install -r requirements.txt
+```
+
 ## Como usar
 
 1. Baixe ou clone este repositório para o seu sistema local.
 
-2. Certifique-se de ter Python instalado em seu sistema.
+2. Certifique-se de ter o Python instalado em seu sistema.
 
-3. Abra o terminal (ou prompt de comando) e navegue até o diretório onde você baixou/clonou este repositório.
+3. Abra o terminal (*ou prompt de comando*) e navegue até o diretório onde você baixou/clonou este repositório.
 
-4. Execute o script com os argumentos necessários. Veja abaixo os exemplos de uso:
+4. Instale as dependências necessárias.
+
+5. Execute o script com os argumentos desejados. Veja abaixo os exemplos de uso:
 
 ### Exemplos de uso:
 
