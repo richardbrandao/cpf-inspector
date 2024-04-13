@@ -14,9 +14,7 @@ def banner():
     print(colorama.Fore.BLUE +         r"                                  /_/" + colorama.Fore.MAGENTA + f"  by:richardbrandao(git) {versao_atual}")
     print(colorama.Style.RESET_ALL)
 
-versao_atual = "v1.0.0"
-repo_zip_url = "https://github.com/richardbrandao/cpf-inspector/archive/refs/heads/main.zip"
-repo_folder_name = "cpf-inspector"
+versao_atual = "v1.2.0"
 
 def calcular_primeiro_digito_verificador(cpf):
     cpf_numerico = "".join(filter(str.isdigit, cpf))  # Remove caracteres não numéricos do CPF
