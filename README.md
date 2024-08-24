@@ -2,6 +2,7 @@
 
 O CPF Inspector é uma ferramenta de linha de comando para validar CPFs (*Cadastro de Pessoas Físicas*) em arquivos CSV ou TXT. Este script oferece a capacidade de verificar a validade de CPFs em um único arquivo ou em vários arquivos em um diretório, tendo também a capacidade de filtrar a saída para exibir apenas CPFs válidos e exibindo estatísticas de validação e permitindo a saída dos resultados em um arquivo.
 <div align="center">
+  
 ![CPF Inspector banner](https://raw.githubusercontent.com/richardbrandao/cpf-inspector/main/images/banner.png "banner")
 
 </div>
