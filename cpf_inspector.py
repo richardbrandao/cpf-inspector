@@ -2,8 +2,8 @@ import argparse
 import csv
 import os
 import colorama
-
 colorama.init()
+versao_atual = "v1.2.1"
 
 def banner():
     print(colorama.Fore.CYAN +         r"   __________  ______   ____                           __            ")
@@ -14,24 +14,22 @@ def banner():
     print(colorama.Fore.BLUE +         r"                                  /_/" + colorama.Fore.MAGENTA + f"  by:richardbrandao(git) {versao_atual}")
     print(colorama.Style.RESET_ALL)
 
-versao_atual = "v1.2.0"
-
-def calcular_primeiro_digito_verificador(cpf):
+def calcular_digitos_verificadores(cpf):
     cpf_numerico = "".join(filter(str.isdigit, cpf))  # Remove caracteres não numéricos do CPF
+    pesos_1 = [10, 9, 8, 7, 6, 5, 4, 3, 2]  # Para o primeiro dígito verificador
+    pesos_2 = [11, 10, 9, 8, 7, 6, 5, 4, 3, 2]  # Para o segundo dígito verificador
 
-    pesos = [10, 9, 8, 7, 6, 5, 4, 3, 2]
+    # Soma ponderada dos 9 primeiros dígitos
+    soma_1 = sum(int(cpf_numerico[i]) * pesos_1[i] for i in range(9))
+    resto_1 = soma_1 % 11
+    digito_verif_1 = 0 if resto_1 < 2 else 11 - resto_1
 
-    soma = sum(int(cpf_numerico[i]) * pesos[i] for i in range(9)) # Faz a soma ponderada dos 9 primeiros dígitos
+    # Soma ponderada dos 10 primeiros dígitos (incluindo o primeiro dígito verificador)
+    soma_2 = sum(int(cpf_numerico[i]) * pesos_2[i] for i in range(10))
+    resto_2 = soma_2 % 11
+    digito_verif_2 = 0 if resto_2 < 2 else 11 - resto_2
 
-    resto = soma % 11
-
-    # Calcula o primeiro dígito verificador
-    if resto < 2:
-        digito_verif_1 = 0
-    else:
-        digito_verif_1 = 11 - resto
-
-    return digito_verif_1
+    return f'{digito_verif_1}{digito_verif_2}'
 
 def validar_cpf(cpf):
     cpf_numerico = ''.join(filter(str.isdigit, cpf))  # Remove caracteres não numéricos do CPF
@@ -42,16 +40,12 @@ def validar_cpf(cpf):
     if cpf_numerico == cpf_numerico[0] * 11:  # Verifica se todos os dígitos são iguais
         return False
 
-    digito_verif_1 = calcular_primeiro_digito_verificador(cpf_numerico)  # Calcula o primeiro dígito verificador
+    result_digitos = calcular_digitos_verificadores(cpf_numerico)  # Calcula o primeiro dígito verificador
 
-    if digito_verif_1 != int(cpf_numerico[9]):  # Verifica se o primeiro dígito verificador é igual ao fornecido
-        return False
-
-    return True
+    return cpf_numerico[-2:] == result_digitos
 
 def formatar_cpf(cpf):  # Função para formatar um CPF no seguinte padrão >> XYZ.XYZ.XYZ-YZ
     cpf_numerico = "".join(filter(str.isdigit, cpf))  # Remove caracteres não numéricos do CPF
-
     # Adiciona a formatação se o CPF tiver 11 dígitos
     if len(cpf_numerico) == 11:
         return f"{cpf_numerico[:3]}.{cpf_numerico[3:6]}.{cpf_numerico[6:9]}-{cpf_numerico[9:]}"
@@ -67,8 +61,8 @@ def processar_arquivo(filename, output_filename, show_valid_only, writer):
             if filename.endswith('.csv') or filename.endswith('.txt'):  # Verifica se o arquivo é CSV ou TXT
                 reader = csv.reader(file)
 
-                print(" Nº" + " " * 8 + "CPF" + " " * 26 + "STATUS") # Monta o cabeçalho
-                print("-" * 46)
+                print(" Nº" + " " * 8 + "CPF" + " " * 35 + "STATUS") # Monta o cabeçalho
+                print("-" * 55)
 
                 for row in reader:
                     cpf = row[0]  # Extrai o CPF da linha
@@ -77,33 +71,31 @@ def processar_arquivo(filename, output_filename, show_valid_only, writer):
                         cpfs_validos += 1
                         cpf_valido_encontrado = True
                         cpf_formatado = formatar_cpf(cpf)  # Formata o CPF
-                        print(f"[{total_cpfs}]".ljust(5) + f" {(cpf_formatado).ljust(35)}" + "[" + colorama.Fore.LIGHTGREEN_EX + "✓" + colorama.Style.RESET_ALL + "]")  # Exibe o CPF formatado como válido
+                        print(f"[{total_cpfs}]".ljust(5) + f" {(cpf_formatado).ljust(45)}" + "[" + colorama.Fore.LIGHTGREEN_EX + "✓" + colorama.Style.RESET_ALL + "]")  # Exibe o CPF formatado como válido
                         if writer:
                             writer.writerow([cpf_formatado, 'VALIDO'])  # Escreve o CPF formatado como válido no arquivo de saída
                         elif output_filename:
                             print("[!] Erro: Não é possível escrever em um arquivo de saída.")
                     elif not show_valid_only:
                         cpfs_invalidos += 1
-                        print(f"[{total_cpfs}]".ljust(5) + f" {(cpf).ljust(35)}" + "[" + colorama.Fore.RED + "X" + colorama.Style.RESET_ALL + "]")  # Exibe o CPF como inválido
+                        print(f"[{total_cpfs}]".ljust(5) + f" {(cpf).ljust(45)}" + "[" + colorama.Fore.RED + "X" + colorama.Style.RESET_ALL + "]")  # Exibe o CPF como inválido
                         if writer:
                             writer.writerow([cpf, 'INVALIDO'])  # Escreve o CPF como inválido no arquivo de saída
                         elif output_filename:
                             print("[!] Erro: Não é possível escrever em um arquivo de saída.")
 
                 # Exibir estatísticas ao final do processamento
-                print("-" * 46)
+                print("-" * 55)
                 print("\nEstatísticas de Validação:")
                 print("Total de CPFs:".ljust(15) + f"{(total_cpfs)}")
                 print("CPF válidos:".ljust(15) + f"{cpfs_validos}")
                 print("CPF inválidos:".ljust(15) + f"{cpfs_invalidos}")
-
             else:
                 print(f"[!] Arquivo {filename} não é suportado. Apenas arquivos .csv e .txt são aceitos.")
                 return
 
             if not cpf_valido_encontrado and show_valid_only:
                 print("[!] Não foram encontrados CPFs válidos no arquivo informado.")
-
     except FileNotFoundError:
         print(f'[!] O arquivo "{filename}" não foi encontrado.')
         print('[!] Certifique-se de que o caminho do arquivo esteja correto.')
@@ -124,7 +116,6 @@ def processar_diretorio(directory, output_filename, show_valid_only):
                         print(f"Arquivo: {filename}\n")
                         processar_arquivo(os.path.join(directory, filename), output_filename, show_valid_only, None)
                         print("")
-    
     except FileNotFoundError:
         print(f'[!] O diretório "{directory}" não foi encontrado.')
         print('[!] Verifique se o caminho para o diretório está correto.')
